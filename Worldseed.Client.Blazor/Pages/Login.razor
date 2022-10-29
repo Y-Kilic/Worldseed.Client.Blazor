@@ -1,0 +1,77 @@
+﻿@using global::FluentValidation
+@using BlazorStrap.Extensions.FluentValidation
+@inject HttpClient httpClient
+@inject IJSRuntime iJSRuntime
+@using System.Text.Json
+@inject NavigationManager nav
+
+@page "/login"
+<PageTitle>Login</PageTitle>
+
+
+<p>Login to WorldSeed</p>
+<BSForm Model="accountLoginRequestDTO" OnValidSubmit="SubmitLogin">
+    <FluentValidator TValidator="AccountLoginRequestDTOValidator" />
+
+    <h3>Email</h3>
+    <div>
+        <ValidationMessage For="@(() => accountLoginRequestDTO.Email)" />
+        <BSInput InputType="InputType.Text" placeholder="Email" @bind-Value="accountLoginRequestDTO.Email" MarginBottom="Margins.Medium" />
+    </div>
+    <h3>Password</h3>
+    <div>
+        <ValidationMessage For="@(() => accountLoginRequestDTO.Password)" />
+        <BSInput InputType="InputType.Text" placeholder="Password" @bind-Value="accountLoginRequestDTO.Password" MarginBottom="Margins.Medium" />
+    </div>
+
+    <p><BSButton IsSubmit="true" Color="BSColor.Primary">Login</BSButton></p>
+
+</BSForm>
+
+@code 
+{
+    private AccountLoginRequestDTO accountLoginRequestDTO = new AccountLoginRequestDTO();
+
+    public class AccountLoginRequestDTO
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+    public class RefreshTokenDTO
+    {
+        public string Token { get; set; }
+        public DateTime Expires { get; set; }
+        public DateTime Created { get; set; }
+
+    }
+    public class LoginTokenResponseDTO
+    {
+        public string Token { get; set; }
+        public DateTime ValidFrom { get; set; }
+        public DateTime ValidTo { get; set; }
+        public RefreshTokenDTO RefreshTokenDTO { get; set; }
+    }
+    public class AccountLoginRequestDTOValidator : AbstractValidator<AccountLoginRequestDTO>
+    {
+        public AccountLoginRequestDTOValidator()
+        {
+            RuleFor(loginAccountDTO => loginAccountDTO.Email).NotEmpty().EmailAddress();
+            RuleFor(loginAccountDTO => loginAccountDTO.Password).NotEmpty();
+        }
+    }
+
+    private async Task SubmitLogin()
+    {
+        using (var response = await httpClient.PostAsJsonAsync<AccountLoginRequestDTO>("https://worldseedapi20220930160640.azurewebsites.net/api/Auth/login", accountLoginRequestDTO, System.Threading.CancellationToken.None))
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                LoginTokenResponseDTO result = await response.Content.ReadFromJsonAsync<LoginTokenResponseDTO>();
+                await iJSRuntime.InvokeVoidAsync("localStorage.setItem", "JWT", $"{JsonSerializer.Serialize(result)}").ConfigureAwait(false);
+                nav.NavigateTo("/");
+
+            }
+        }  
+    }
+
+}
