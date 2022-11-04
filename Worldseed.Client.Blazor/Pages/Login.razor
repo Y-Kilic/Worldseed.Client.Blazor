@@ -3,7 +3,9 @@
 @inject HttpClient httpClient
 @inject IJSRuntime iJSRuntime
 @using System.Text.Json
+@using System.Net.Http.Headers
 @inject NavigationManager nav
+
 
 @page "/login"
 <PageTitle>Login</PageTitle>
@@ -66,8 +68,11 @@
         {
             if (response.IsSuccessStatusCode)
             {
+                // TODO: Seperate them :)
                 LoginTokenResponseDTO result = await response.Content.ReadFromJsonAsync<LoginTokenResponseDTO>();
                 await iJSRuntime.InvokeVoidAsync("localStorage.setItem", "JWT", $"{JsonSerializer.Serialize(result)}").ConfigureAwait(false);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
+                
                 nav.NavigateTo("/");
 
             }
