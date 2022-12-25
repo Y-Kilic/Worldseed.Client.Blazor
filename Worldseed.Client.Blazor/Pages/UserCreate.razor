@@ -1,0 +1,81 @@
+﻿@using Worldseed.Client.Blazor.DTOs
+@using global::FluentValidation
+@using BlazorStrap.Extensions.FluentValidation
+@inject IJSRuntime iJSRuntime
+@using System.Text.Json
+@using System.Net.Http.Headers
+@inject NavigationManager nav
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IBlazorStrap blazorStrap
+@using Worldseed.Client.Blazor.Helpers
+@inject HttpClient httpClient
+
+
+@page "/user/create"
+<PageTitle>Create user</PageTitle>
+
+
+<p>Create user</p>
+<BSForm Model="createUserDTO" OnValidSubmit="SubmitCreateUser">
+    <FluentValidator TValidator="CreateUserDTOValidator" />
+
+    <h3>Username</h3>
+    <div>
+        <ValidationMessage For="@(() => createUserDTO.UserName)" />
+        <BSInput InputType="InputType.Text" placeholder="Username" @bind-Value="createUserDTO.UserName" MarginBottom="Margins.Medium" />
+    </div>
+
+    <p><BSButton IsSubmit="true" Color="BSColor.Primary">Create user</BSButton></p>
+
+</BSForm>
+
+<BSModal IsCentered="true" DataId="modalFailed">
+    <Header>Error</Header>
+    <Content>User creation failed :( Please try again</Content>
+    <Footer Context="modal">
+        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="modal.HideAsync">Close</BSButton>
+    </Footer>
+</BSModal>
+
+<BSModal IsCentered="true" DataId="modalSucceeded">
+    <Header>Success</Header>
+    <Content>User creation succeeded!</Content>
+    <Footer Context="modal">
+        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="Redirect">Close</BSButton>
+    </Footer>
+</BSModal>
+
+@code 
+{
+    private CreateUserDTO createUserDTO = new CreateUserDTO();
+
+    public class CreateUserDTOValidator : AbstractValidator<CreateUserDTO>
+    {
+        public CreateUserDTOValidator()
+        {
+            RuleFor(createUserDTO => createUserDTO.UserName).NotEmpty();
+        }
+    }
+    private async Task Redirect()
+    {
+        nav.NavigateTo("/");
+    }
+    private async Task SubmitCreateUser()
+    {
+        var currentToken = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
+        httpClient.DefaultRequestHeaders.Authorization =
+    new AuthenticationHeaderValue("Bearer", currentToken.Token);
+        using (var response = await httpClient.PostAsJsonAsync<CreateUserDTO>("https://worldseedapi20220930160640.azurewebsites.net/api/User/createUser", createUserDTO, System.Threading.CancellationToken.None))
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                blazorStrap.ForwardClick("modalSucceeded");
+            }
+            else
+            {
+                blazorStrap.ForwardClick("modalFailed");
+            }
+        }  
+    }
+
+}
