@@ -7,7 +7,7 @@
 @using System.Net.Http.Headers
 @inject NavigationManager nav
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-s
+@inject IBlazorStrap blazorStrap
 
 
 @page "/login"
@@ -21,27 +21,30 @@ s
     <h3>Email</h3>
     <div>
         <ValidationMessage For="@(() => accountLoginRequestDTO.Email)" />
-        <BSInput InputType="InputType.Text" placeholder="Email" @bind-Value="accountLoginRequestDTO.Email" MarginBottom="Margins.Medium" />
+        <BSInput InputType="InputType.Email" placeholder="Email" @bind-Value="accountLoginRequestDTO.Email" MarginBottom="Margins.Medium" />
     </div>
     <h3>Password</h3>
     <div>
         <ValidationMessage For="@(() => accountLoginRequestDTO.Password)" />
-        <BSInput InputType="InputType.Text" placeholder="Password" @bind-Value="accountLoginRequestDTO.Password" MarginBottom="Margins.Medium" />
+        <BSInput InputType="InputType.Password" placeholder="Password" @bind-Value="accountLoginRequestDTO.Password" MarginBottom="Margins.Medium" />
     </div>
 
     <p><BSButton IsSubmit="true" Color="BSColor.Primary">Login</BSButton></p>
 
 </BSForm>
 
+<BSModal DataId="modalLoginFailed">
+    <Header>Error</Header>
+    <Content>Login failed :(</Content>
+        <Footer Context="modal">
+            <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="modal.HideAsync">Close</BSButton>
+        </Footer>
+</BSModal>
+
+
 @code 
 {
     private AccountLoginRequestDTO accountLoginRequestDTO = new AccountLoginRequestDTO();
-
-    public class AccountLoginRequestDTO
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
 
     public class AccountLoginRequestDTOValidator : AbstractValidator<AccountLoginRequestDTO>
     {
@@ -60,14 +63,16 @@ s
             {
                 // TODO: Seperate them :)
                 LoginTokenResponseDTO? result = await response.Content.ReadFromJsonAsync<LoginTokenResponseDTO>();
-                
+
                 await localStorage.SetItemAsync("JWT", result);
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
-                
+                                
                 nav.NavigateTo("/");
-
+            }
+            else
+            {
+                blazorStrap.ForwardClick("modalLoginFailed");
             }
         }  
     }
-
 }

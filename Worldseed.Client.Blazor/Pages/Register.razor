@@ -1,0 +1,89 @@
+﻿@using Worldseed.Client.Blazor.DTOs;
+@using global::FluentValidation
+@using BlazorStrap.Extensions.FluentValidation
+@inject HttpClient httpClient
+@inject IJSRuntime iJSRuntime
+@using System.Text.Json
+@using System.Net.Http.Headers
+@inject NavigationManager nav
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IBlazorStrap blazorStrap
+
+
+@page "/register"
+<PageTitle>Register</PageTitle>
+
+
+<p>Register to WorldSeed</p>
+<BSForm Model="accountRegisterRequestDTO" OnValidSubmit="SubmitRegister">
+    <FluentValidator TValidator="AccountRegisterRequestDTOValidator" />
+
+    <h3>Username</h3>
+    <div>
+        <ValidationMessage For="@(() => accountRegisterRequestDTO.Username)" />
+        <BSInput InputType="InputType.Text" placeholder="Username" @bind-Value="accountRegisterRequestDTO.Username" MarginBottom="Margins.Medium" />
+    </div>
+    <h3>Email</h3>
+    <div>
+        <ValidationMessage For="@(() => accountRegisterRequestDTO.Email)" />
+        <BSInput InputType="InputType.Email" placeholder="Email" @bind-Value="accountRegisterRequestDTO.Email" MarginBottom="Margins.Medium" />
+    </div>
+    <h3>Password</h3>
+    <div>
+        <ValidationMessage For="@(() => accountRegisterRequestDTO.Password)" />
+        <BSInput InputType="InputType.Password" placeholder="Password" @bind-Value="accountRegisterRequestDTO.Password" MarginBottom="Margins.Medium" />
+    </div>
+
+    <p><BSButton IsSubmit="true" Color="BSColor.Primary">Register</BSButton></p>
+
+</BSForm>
+
+<BSModal IsCentered="true" DataId="modalRegisterFailed">
+    <Header>Error</Header>
+    <Content>Registration failed :( Please try again</Content>
+    <Footer Context="modal">
+        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="modal.HideAsync">Close</BSButton>
+    </Footer>
+</BSModal>
+
+<BSModal IsCentered="true" DataId="modalRegisterSucceeded">
+    <Header>Success</Header>
+    <Content>Registration succeeded!</Content>
+    <Footer Context="modal">
+        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="RedirectToLogin">Go to login</BSButton>
+    </Footer>
+</BSModal>
+
+@code 
+{
+    private AccountRegisterRequestDTO accountRegisterRequestDTO = new AccountRegisterRequestDTO();
+    string loginUrl = "/login";
+    public class AccountRegisterRequestDTOValidator : AbstractValidator<AccountRegisterRequestDTO>
+    {
+        public AccountRegisterRequestDTOValidator()
+        {
+            RuleFor(registerAccountDTO => registerAccountDTO.Username).NotEmpty();
+            RuleFor(registerAccountDTO => registerAccountDTO.Email).NotEmpty().EmailAddress();
+            RuleFor(registerAccountDTO => registerAccountDTO.Password).NotEmpty();
+        }
+    }
+    private async Task RedirectToLogin()
+    {
+        nav.NavigateTo("/login");
+    }
+    private async Task SubmitRegister()
+    {
+        using (var response = await httpClient.PostAsJsonAsync<AccountRegisterRequestDTO>("https://worldseedapi20220930160640.azurewebsites.net/api/Auth/register", accountRegisterRequestDTO, System.Threading.CancellationToken.None))
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                blazorStrap.ForwardClick("modalRegisterSucceeded");
+            }
+            else
+            {
+                blazorStrap.ForwardClick("modalRegisterFailed");
+            }
+        }  
+    }
+
+}

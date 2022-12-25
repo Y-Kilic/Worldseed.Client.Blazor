@@ -1,8 +1,18 @@
 ﻿@inherits LayoutComponentBase
+@using Worldseed.Client.Blazor.Helpers
+@using Worldseed.Client.Blazor.DTOs;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        @if (SessionHelper.IsAuthenticated(currentToken))
+        {
+            <NavMenuAuthenticated />
+        }
+        else
+        {
+            <NavMenu />
+        }
     </div>
 
     <main>
@@ -15,3 +25,18 @@
         </article>
     </main>
 </div>
+
+@code{
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        currentToken = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        await OnInitializedAsync();
+    }
+    private LoginTokenResponseDTO currentToken = null;
+}
