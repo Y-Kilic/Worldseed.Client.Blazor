@@ -1,0 +1,57 @@
+﻿@using Worldseed.Client.Blazor.DTOs
+@using System.Net.Http.Headers
+@inject HttpClient httpClient
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+
+@page "/user/getAccountUsers"
+<h3>GetAccountUsers</h3>
+
+<BSRow>
+@foreach (var user in list)
+{
+    <BSCol>
+    <BSCard CardType="CardType.Card" style="width: 18rem;">
+        <BSCard CardType="CardType.Image" src="placeholder:286x180" alt="Card image cap" />
+        <BSCard CardType="CardType.Body">
+            <BSCard CardType="CardType.Title">@user.Name</BSCard>
+            <BSCard CardType="CardType.Text">
+                user has id: @user.Id
+            </BSCard>
+            <BSButton Color="BSColor.Primary" @onclick="() => GoToUserProfile(user.Name)">Profile</BSButton>
+        </BSCard>
+    </BSCard>
+    </BSCol>
+}
+</BSRow>
+
+@code {
+    private string heading = "Initial heading";
+    private async Task GoToUserProfile(string username)
+    {
+        nav.NavigateTo($"/user/{username}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await base.OnInitializedAsync();
+
+        var currentToken = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
+        httpClient.DefaultRequestHeaders.Authorization =
+        new AuthenticationHeaderValue("Bearer", currentToken.Token);
+        var response = await httpClient.GetFromJsonAsync<List<GetAccountUsersResponseDTO>>("https://localhost:7048/api/User/getAccountUsers");
+
+        if (response != null && response.Count > 0)
+        {
+            list = response;
+        }
+            else
+            {
+               
+            }
+
+    }
+
+    List<GetAccountUsersResponseDTO> list = new List<GetAccountUsersResponseDTO>();
+}  
