@@ -62,9 +62,9 @@
     {
         public AccountRegisterRequestDTOValidator()
         {
-            RuleFor(registerAccountDTO => registerAccountDTO.Username).NotEmpty();
+            RuleFor(registerAccountDTO => registerAccountDTO.Username).NotEmpty().Must(u => !u.Any(x => Char.IsWhiteSpace(x)));
             RuleFor(registerAccountDTO => registerAccountDTO.Email).NotEmpty().EmailAddress();
-            RuleFor(registerAccountDTO => registerAccountDTO.Password).NotEmpty();
+            RuleFor(registerAccountDTO => registerAccountDTO.Password).NotEmpty().MinimumLength(8).Must(u => !u.Any(x => Char.IsWhiteSpace(x)));
         }
     }
     private async Task RedirectToLogin()
