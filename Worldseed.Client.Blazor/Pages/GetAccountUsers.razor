@@ -40,16 +40,24 @@
         var currentToken = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
         httpClient.DefaultRequestHeaders.Authorization =
         new AuthenticationHeaderValue("Bearer", currentToken.Token);
-        var response = await httpClient.GetFromJsonAsync<List<GetAccountUsersResponseDTO>>("https://localhost:7048/api/User/getAccountUsers");
 
-        if (response != null && response.Count > 0)
+        try
         {
-            list = response;
-        }
+            var response = await httpClient.GetFromJsonAsync<List<GetAccountUsersResponseDTO>>("https://worldseedapi20220930160640.azurewebsites.net/api/User/getAccountUsers");
+
+            if (response != null && response.Count > 0)
+            {
+                list = response;
+            }
             else
             {
-               
+                nav.NavigateTo($"/user/create");
             }
+        }
+        catch (Exception)
+        {
+            nav.NavigateTo($"/user/create");
+        }
 
     }
 
