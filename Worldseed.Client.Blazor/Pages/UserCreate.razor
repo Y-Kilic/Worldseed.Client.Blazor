@@ -53,7 +53,11 @@
     {
         public CreateUserDTOValidator()
         {
-            RuleFor(createUserDTO => createUserDTO.UserName).NotEmpty();
+            RuleFor(createUserDTO => createUserDTO.UserName).NotEmpty().NotNull();
+            // No whitespaces
+            RuleFor(createUserDTO => createUserDTO.UserName).Must(u => !u.Any(x => Char.IsWhiteSpace(x)));
+            // Only letters and numbers
+            RuleFor(createUserDTO => createUserDTO.UserName).Matches(@"^[a-zA-Z0-9]+$");
         }
     }
     private async Task Redirect()
@@ -65,7 +69,7 @@
         var currentToken = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
         httpClient.DefaultRequestHeaders.Authorization =
     new AuthenticationHeaderValue("Bearer", currentToken.Token);
-        using (var response = await httpClient.PostAsJsonAsync<CreateUserDTO>("https://worldseedapi20220930160640.azurewebsites.net/api/User/createUser", createUserDTO, System.Threading.CancellationToken.None))
+        using (var response = await httpClient.PostAsJsonAsync<CreateUserDTO>("https://api.worldseed.io/api/User/createUser", createUserDTO, System.Threading.CancellationToken.None))
         {
             if (response.IsSuccessStatusCode)
             {

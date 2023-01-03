@@ -73,7 +73,7 @@
     }
     private async Task SubmitRegister()
     {
-        using (var response = await httpClient.PostAsJsonAsync<AccountRegisterRequestDTO>("https://worldseedapi20220930160640.azurewebsites.net/api/Auth/register", accountRegisterRequestDTO, System.Threading.CancellationToken.None))
+        using (var response = await httpClient.PostAsJsonAsync<AccountRegisterRequestDTO>("https://api.worldseed.io/api/Auth/register", accountRegisterRequestDTO, System.Threading.CancellationToken.None))
         {
             if (response.IsSuccessStatusCode)
             {

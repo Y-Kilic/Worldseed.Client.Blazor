@@ -8,6 +8,7 @@
 @inject NavigationManager nav
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IBlazorStrap blazorStrap
+@using Worldseed.Client.Blazor.Helpers
 
 
 @page "/login"
@@ -57,7 +58,7 @@
 
     private async Task SubmitLogin()
     {
-        using (var response = await httpClient.PostAsJsonAsync<AccountLoginRequestDTO>("https://worldseedapi20220930160640.azurewebsites.net/api/Auth/login", accountLoginRequestDTO, System.Threading.CancellationToken.None))
+        using (var response = await httpClient.PostAsJsonAsync<AccountLoginRequestDTO>("https://api.worldseed.io/api/Auth/login", accountLoginRequestDTO, System.Threading.CancellationToken.None))
         {
             if (response.IsSuccessStatusCode)
             {
@@ -65,7 +66,6 @@
                 LoginTokenResponseDTO? result = await response.Content.ReadFromJsonAsync<LoginTokenResponseDTO>();
 
                 await localStorage.SetItemAsync("JWT", result);
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
                                 
                 nav.NavigateTo("/");
             }
