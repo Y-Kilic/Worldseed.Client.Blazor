@@ -26,7 +26,12 @@
 </BSRow>
 
 @code {
-    private string heading = "Initial heading";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await OnInitializedAsync();
+    }
+
     private async Task GoToUserProfile(string username)
     {
         nav.NavigateTo($"/user/{username}");
