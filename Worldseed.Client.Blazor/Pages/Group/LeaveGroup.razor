@@ -1,0 +1,23 @@
+@page "/group/leave"
+@using Worldseed.Client.Blazor.DTOs.Group
+@using Worldseed.Client.Blazor.DTOs
+@inject HttpClient httpClient
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@using System.Net.Http.Headers
+
+<h3>Leave Group</h3>
+<input type="number" @bind="dto.GroupId" placeholder="Group ID" />
+<button @onclick="Leave">Leave</button>
+
+@code {
+    private JoinGroupRequestDto dto = new();
+
+    private async Task Leave()
+    {
+        var token = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
+        httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token?.Token);
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/leave", dto);
+        dto = new JoinGroupRequestDto();
+    }
+}

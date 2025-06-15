@@ -1,0 +1,24 @@
+@page "/group/updateName"
+@using Worldseed.Client.Blazor.DTOs.Group
+@using Worldseed.Client.Blazor.DTOs
+@inject HttpClient httpClient
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@using System.Net.Http.Headers
+
+<h3>Update Group Name</h3>
+<input type="number" @bind="dto.GroupId" placeholder="Group ID" />
+<input @bind="dto.NewName" placeholder="New Name" />
+<button @onclick="Update">Update</button>
+
+@code {
+    private UpdateGroupNameDto dto = new();
+
+    private async Task Update()
+    {
+        var token = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
+        httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token?.Token);
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/updateName", dto);
+        dto = new UpdateGroupNameDto();
+    }
+}
