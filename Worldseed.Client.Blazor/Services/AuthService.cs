@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Worldseed.Client.Blazor.DTOs;
@@ -29,9 +30,13 @@ namespace Worldseed.Client.Blazor.Services
 
             if (tokenInfo.ValidTo <= DateTime.UtcNow.AddMinutes(1))
             {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", tokenInfo.Token);
+
                 using var response = await _httpClient.PostAsJsonAsync(
                     "api/Auth/refresh-token",
                     tokenInfo.RefreshTokenDTO);
+
                 if (response.IsSuccessStatusCode)
                 {
                     var newToken = await response.Content.ReadFromJsonAsync<LoginTokenResponseDTO>();
@@ -40,6 +45,11 @@ namespace Worldseed.Client.Blazor.Services
                         await _localStorage.SetItemAsync("JWT", newToken);
                         tokenInfo = newToken;
                     }
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await _localStorage.RemoveItemAsync("JWT");
+                    return null;
                 }
             }
 
