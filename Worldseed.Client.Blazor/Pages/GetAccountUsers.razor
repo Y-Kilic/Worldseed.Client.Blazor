@@ -1,7 +1,7 @@
 ﻿@using Worldseed.Client.Blazor.DTOs
 @using System.Net.Http.Headers
 @inject HttpClient httpClient
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject AuthService authService
 @inject NavigationManager nav
 
 @page "/user/getAccountUsers"
@@ -42,9 +42,7 @@
 
         await base.OnInitializedAsync();
 
-        var currentToken = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
-        httpClient.DefaultRequestHeaders.Authorization =
-        new AuthenticationHeaderValue("Bearer", currentToken.Token);
+        await authService.SetAuthHeaderAsync();
 
         try
         {

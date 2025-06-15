@@ -2,7 +2,7 @@
 @using Worldseed.Client.Blazor.DTOs.Group
 @using Worldseed.Client.Blazor.DTOs
 @inject HttpClient httpClient
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject AuthService authService
 @using System.Net.Http.Headers
 
 <h3>Create Group</h3>
@@ -14,9 +14,7 @@
 
     private async Task Create()
     {
-        var token = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
-        httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token?.Token);
+        await authService.SetAuthHeaderAsync();
         await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/createGroup", group);
         group = new CreateGroupRequestDto();
     }
