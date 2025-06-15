@@ -1,0 +1,15 @@
+@page "/forum/create"
+@using Worldseed.Client.Blazor.DTOs.Forum
+@inject HttpClient httpClient
+@code {
+    private CreateForumDTO forum = new();
+    private async Task Create()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/forum/createForum", forum);
+        forum = new CreateForumDTO();
+    }
+}
+<h3>Create Forum</h3>
+<input @bind="forum.Name" placeholder="Name" />
+<input type="number" @bind="forum.GroupId" placeholder="GroupId (optional)" />
+<button @onclick="Create">Create</button>
