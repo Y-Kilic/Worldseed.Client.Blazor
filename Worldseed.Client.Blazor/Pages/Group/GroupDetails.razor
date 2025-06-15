@@ -1,0 +1,60 @@
+@page "/group/{groupId:int}"
+@using Worldseed.Client.Blazor.DTOs.Group
+@inject HttpClient httpClient
+@inject AuthService authService
+
+<h3>@groupName</h3>
+
+@if (members.Count == 0)
+{
+    <p>No members found.</p>
+}
+else
+{
+    <ul>
+    @foreach (var m in members)
+    {
+        <li>
+            @m.UserName (@m.Rank)
+            <select @onchange="(e) => ChangeRank(m.UserId, int.Parse(e.Value.ToString()))">
+                <option value="0">Owner</option>
+                <option value="1">Admin</option>
+                <option value="2">Member</option>
+            </select>
+        </li>
+    }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public int groupId { get; set; }
+    private string groupName = string.Empty;
+    private List<GroupMemberDto> members = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        await authService.SetAuthHeaderAsync();
+        var groups = await httpClient.GetFromJsonAsync<List<GroupDto>>("api/group/mine") ?? new();
+        groupName = groups.FirstOrDefault(g => g.Id == groupId)?.Name ?? $"Group {groupId}";
+        members = await httpClient.GetFromJsonAsync<List<GroupMemberDto>>($"api/group/{groupId}/members") ?? new();
+    }
+
+    private async Task ChangeRank(int userId, int newRank)
+    {
+        var dto = new ChangeMemberRankDto
+        {
+            GroupId = groupId,
+            TargetUserId = userId,
+            NewRank = (GroupRank)newRank
+        };
+        await authService.SetAuthHeaderAsync();
+        await httpClient.PostAsJsonAsync("api/group/rank", dto);
+        await LoadData();
+    }
+}

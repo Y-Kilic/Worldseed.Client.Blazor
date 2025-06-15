@@ -1,15 +1,45 @@
 @page "/forum/create"
 @using Worldseed.Client.Blazor.DTOs.Forum
+@using Worldseed.Client.Blazor.DTOs.Group
 @inject HttpClient httpClient
+@inject AuthService authService
+
+<h3>Create Forum</h3>
+
+@if (groups.Count == 0)
+{
+    <p>You need to be in a group before creating a forum.</p>
+}
+else
+{
+    <input @bind="forum.Name" placeholder="Name" />
+    <select @bind="forum.GroupId">
+        @foreach (var g in groups)
+        {
+            <option value="@g.Id">@g.Name</option>
+        }
+    </select>
+    <button @onclick="Create">Create</button>
+}
+
 @code {
     private CreateForumDTO forum = new();
+    private List<GroupDto> groups = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await authService.SetAuthHeaderAsync();
+        groups = await httpClient.GetFromJsonAsync<List<GroupDto>>("api/group/mine") ?? new();
+        if (groups.Count > 0)
+        {
+            forum.GroupId = groups[0].Id;
+        }
+    }
+
     private async Task Create()
     {
+        await authService.SetAuthHeaderAsync();
         await httpClient.PostAsJsonAsync("api/forum/createForum", forum);
         forum = new CreateForumDTO();
     }
 }
-<h3>Create Forum</h3>
-<input @bind="forum.Name" placeholder="Name" />
-<input type="number" @bind="forum.GroupId" placeholder="GroupId (optional)" />
-<button @onclick="Create">Create</button>

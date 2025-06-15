@@ -1,21 +1,42 @@
 @page "/group/leave"
 @using Worldseed.Client.Blazor.DTOs.Group
-@using Worldseed.Client.Blazor.DTOs
 @inject HttpClient httpClient
 @inject AuthService authService
-@using System.Net.Http.Headers
 
 <h3>Leave Group</h3>
-<input type="number" @bind="dto.GroupId" placeholder="Group ID" />
-<button @onclick="Leave">Leave</button>
+
+@if (groups.Count == 0)
+{
+    <p>You are not in any groups.</p>
+}
+else
+{
+    <ul>
+        @foreach (var g in groups)
+        {
+            <li>@g.Name <button @onclick="() => Leave(g.Id)">Leave</button></li>
+        }
+    </ul>
+}
 
 @code {
-    private JoinGroupRequestDto dto = new();
+    private List<GroupDto> groups = new();
 
-    private async Task Leave()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGroups();
+    }
+
+    private async Task LoadGroups()
     {
         await authService.SetAuthHeaderAsync();
-        await httpClient.PostAsJsonAsync("api/group/leave", dto);
-        dto = new JoinGroupRequestDto();
+        groups = await httpClient.GetFromJsonAsync<List<GroupDto>>("api/group/mine") ?? new();
+    }
+
+    private async Task Leave(int groupId)
+    {
+        await authService.SetAuthHeaderAsync();
+        await httpClient.PostAsJsonAsync("api/group/leave", new JoinGroupRequestDto { GroupId = groupId });
+        await LoadGroups();
     }
 }
