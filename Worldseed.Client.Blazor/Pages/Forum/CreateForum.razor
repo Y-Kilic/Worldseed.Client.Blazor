@@ -5,7 +5,7 @@
     private CreateForumDTO forum = new();
     private async Task Create()
     {
-        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/forum/createForum", forum);
+        await httpClient.PostAsJsonAsync("api/forum/createForum", forum);
         forum = new CreateForumDTO();
     }
 }

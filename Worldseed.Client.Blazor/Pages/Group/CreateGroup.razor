@@ -15,7 +15,7 @@
     private async Task Create()
     {
         await authService.SetAuthHeaderAsync();
-        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/createGroup", group);
+        await httpClient.PostAsJsonAsync("api/group/createGroup", group);
         group = new CreateGroupRequestDto();
     }
 }

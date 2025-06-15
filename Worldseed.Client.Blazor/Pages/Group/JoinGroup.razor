@@ -15,7 +15,7 @@
     private async Task Join()
     {
         await authService.SetAuthHeaderAsync();
-        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/join", dto);
+        await httpClient.PostAsJsonAsync("api/group/join", dto);
         dto = new JoinGroupRequestDto();
     }
 }

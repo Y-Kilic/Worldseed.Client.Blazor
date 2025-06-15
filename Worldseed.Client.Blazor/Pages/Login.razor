@@ -58,7 +58,7 @@
 
     private async Task SubmitLogin()
     {
-        using (var response = await httpClient.PostAsJsonAsync<AccountLoginRequestDTO>("https://api.worldseed.io/api/Auth/login", accountLoginRequestDTO, System.Threading.CancellationToken.None))
+        using (var response = await httpClient.PostAsJsonAsync<AccountLoginRequestDTO>("api/Auth/login", accountLoginRequestDTO, System.Threading.CancellationToken.None))
         {
             if (response.IsSuccessStatusCode)
             {

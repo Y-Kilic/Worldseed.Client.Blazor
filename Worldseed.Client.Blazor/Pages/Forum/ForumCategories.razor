@@ -8,14 +8,14 @@
     private CreateForumCategoryDTO newCategory = new();
     protected override async Task OnInitializedAsync()
     {
-        categories = await httpClient.GetFromJsonAsync<List<ForumCategoryDTO>>($"https://api.worldseed.io/api/forum/{forumId}/categories") ?? new();
+        categories = await httpClient.GetFromJsonAsync<List<ForumCategoryDTO>>($"api/forum/{forumId}/categories") ?? new();
         newCategory.ForumId = forumId;
     }
     private async Task CreateCategory()
     {
-        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/forum/createCategory", newCategory);
+        await httpClient.PostAsJsonAsync("api/forum/createCategory", newCategory);
         newCategory = new CreateForumCategoryDTO { ForumId = forumId };
-        categories = await httpClient.GetFromJsonAsync<List<ForumCategoryDTO>>($"https://api.worldseed.io/api/forum/{forumId}/categories") ?? new();
+        categories = await httpClient.GetFromJsonAsync<List<ForumCategoryDTO>>($"api/forum/{forumId}/categories") ?? new();
     }
 }
 <h3>Forum Categories</h3>
