@@ -1,0 +1,14 @@
+@page "/group/create"
+@using Worldseed.Client.Blazor.DTOs.Group
+@inject HttpClient httpClient
+@code {
+    private CreateGroupRequestDTO group = new();
+    private async Task Create()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/createGroup", group);
+        group = new CreateGroupRequestDTO();
+    }
+}
+<h3>Create Group</h3>
+<input @bind="group.Name" placeholder="Name" />
+<button @onclick="Create">Create</button>

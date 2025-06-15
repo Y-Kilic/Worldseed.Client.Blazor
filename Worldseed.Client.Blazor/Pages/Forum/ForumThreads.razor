@@ -1,0 +1,31 @@
+@page "/forum/category/{categoryId:int}/threads"
+@using Worldseed.Client.Blazor.DTOs.Forum
+@inject HttpClient httpClient
+@code {
+    [Parameter]
+    public int categoryId { get; set; }
+    private List<ForumCategoryThreadDTO> threads = new();
+    private CreateForumThreadDTO newThread = new();
+    protected override async Task OnInitializedAsync()
+    {
+        threads = await httpClient.GetFromJsonAsync<List<ForumCategoryThreadDTO>>($"https://api.worldseed.io/api/forum/category/{categoryId}/threads") ?? new();
+        newThread.ForumCategoryId = categoryId;
+    }
+    private async Task CreateThread()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/forum/createThread", newThread);
+        newThread = new CreateForumThreadDTO { ForumCategoryId = categoryId };
+        threads = await httpClient.GetFromJsonAsync<List<ForumCategoryThreadDTO>>($"https://api.worldseed.io/api/forum/category/{categoryId}/threads") ?? new();
+    }
+}
+<h3>Threads</h3>
+<ul>
+@foreach (var t in threads)
+{
+    <li><a href="/forum/thread/@t.Id/posts">@t.Title</a></li>
+}
+</ul>
+<h4>Create Thread</h4>
+<input @bind="newThread.Title" placeholder="Title" />
+<input type="number" @bind="newThread.OwnerId" placeholder="Owner ID" />
+<button @onclick="CreateThread">Create</button>

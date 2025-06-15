@@ -1,0 +1,14 @@
+@page "/group/join"
+@using Worldseed.Client.Blazor.DTOs.Group
+@inject HttpClient httpClient
+@code {
+    private JoinGroupRequestDTO joinDto = new();
+    private async Task Join()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/join", joinDto);
+        joinDto = new JoinGroupRequestDTO();
+    }
+}
+<h3>Join Group</h3>
+<input type="number" @bind="joinDto.GroupId" placeholder="Group ID" />
+<button @onclick="Join">Join</button>

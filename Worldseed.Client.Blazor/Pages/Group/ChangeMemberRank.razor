@@ -1,0 +1,20 @@
+@page "/group/changeRank"
+@using Worldseed.Client.Blazor.DTOs.Group
+@inject HttpClient httpClient
+@code {
+    private ChangeMemberRankDTO rankDto = new();
+    private async Task ChangeRank()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/rank", rankDto);
+        rankDto = new ChangeMemberRankDTO();
+    }
+}
+<h3>Change Member Rank</h3>
+<input type="number" @bind="rankDto.GroupId" placeholder="Group ID" />
+<input type="number" @bind="rankDto.TargetUserId" placeholder="Target User ID" />
+<select @bind="rankDto.NewRank">
+    <option value="0">Owner</option>
+    <option value="1">Admin</option>
+    <option value="2">Member</option>
+</select>
+<button @onclick="ChangeRank">Change Rank</button>

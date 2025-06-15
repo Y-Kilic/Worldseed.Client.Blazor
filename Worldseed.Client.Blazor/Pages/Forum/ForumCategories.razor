@@ -1,0 +1,30 @@
+@page "/forum/{forumId:int}/categories"
+@using Worldseed.Client.Blazor.DTOs.Forum
+@inject HttpClient httpClient
+@code {
+    [Parameter]
+    public int forumId { get; set; }
+    private List<ForumCategoryDTO> categories = new();
+    private CreateForumCategoryDTO newCategory = new();
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await httpClient.GetFromJsonAsync<List<ForumCategoryDTO>>($"https://api.worldseed.io/api/forum/{forumId}/categories") ?? new();
+        newCategory.ForumId = forumId;
+    }
+    private async Task CreateCategory()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/forum/createCategory", newCategory);
+        newCategory = new CreateForumCategoryDTO { ForumId = forumId };
+        categories = await httpClient.GetFromJsonAsync<List<ForumCategoryDTO>>($"https://api.worldseed.io/api/forum/{forumId}/categories") ?? new();
+    }
+}
+<h3>Forum Categories</h3>
+<ul>
+@foreach (var c in categories)
+{
+    <li><a href="/forum/category/@c.Id/threads">@c.Name</a></li>
+}
+</ul>
+<h4>Create Category</h4>
+<input @bind="newCategory.Name" placeholder="Name" />
+<button @onclick="CreateCategory">Create</button>

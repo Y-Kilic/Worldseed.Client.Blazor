@@ -1,0 +1,14 @@
+@page "/group/leave"
+@using Worldseed.Client.Blazor.DTOs.Group
+@inject HttpClient httpClient
+@code {
+    private JoinGroupRequestDTO leaveDto = new();
+    private async Task Leave()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/leave", leaveDto);
+        leaveDto = new JoinGroupRequestDTO();
+    }
+}
+<h3>Leave Group</h3>
+<input type="number" @bind="leaveDto.GroupId" placeholder="Group ID" />
+<button @onclick="Leave">Leave</button>

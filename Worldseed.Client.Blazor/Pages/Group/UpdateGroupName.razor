@@ -1,0 +1,15 @@
+@page "/group/updateName"
+@using Worldseed.Client.Blazor.DTOs.Group
+@inject HttpClient httpClient
+@code {
+    private UpdateGroupNameDTO updateDto = new();
+    private async Task UpdateName()
+    {
+        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/updateName", updateDto);
+        updateDto = new UpdateGroupNameDTO();
+    }
+}
+<h3>Update Group Name</h3>
+<input type="number" @bind="updateDto.GroupId" placeholder="Group ID" />
+<input @bind="updateDto.NewName" placeholder="New Name" />
+<button @onclick="UpdateName">Update</button>
