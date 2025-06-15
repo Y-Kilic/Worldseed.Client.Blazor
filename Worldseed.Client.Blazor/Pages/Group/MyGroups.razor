@@ -1,0 +1,30 @@
+@page "/group/my"
+@using Worldseed.Client.Blazor.DTOs.Group
+@inject HttpClient httpClient
+@inject AuthService authService
+
+<h3>My Groups</h3>
+
+@if (groups.Count == 0)
+{
+    <p>You are not part of any group.</p>
+}
+else
+{
+    <ul>
+    @foreach (var g in groups)
+    {
+        <li><a href="/group/@g.Id">@g.Name</a></li>
+    }
+    </ul>
+}
+
+@code {
+    private List<GroupDto> groups = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await authService.SetAuthHeaderAsync();
+        groups = await httpClient.GetFromJsonAsync<List<GroupDto>>("api/group/mine") ?? new();
+    }
+}

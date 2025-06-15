@@ -1,21 +1,37 @@
 @page "/group/join"
 @using Worldseed.Client.Blazor.DTOs.Group
-@using Worldseed.Client.Blazor.DTOs
 @inject HttpClient httpClient
 @inject AuthService authService
-@using System.Net.Http.Headers
 
 <h3>Join Group</h3>
-<input type="number" @bind="dto.GroupId" placeholder="Group ID" />
-<button @onclick="Join">Join</button>
+
+@if (groups.Count == 0)
+{
+    <p>No groups available to join.</p>
+}
+else
+{
+    <ul>
+        @foreach (var g in groups)
+        {
+            <li>@g.Name <button @onclick="() => Join(g.Id)">Join</button></li>
+        }
+    </ul>
+}
 
 @code {
-    private JoinGroupRequestDto dto = new();
+    private List<GroupDto> groups = new();
 
-    private async Task Join()
+    protected override async Task OnInitializedAsync()
     {
         await authService.SetAuthHeaderAsync();
-        await httpClient.PostAsJsonAsync("api/group/join", dto);
-        dto = new JoinGroupRequestDto();
+        groups = await httpClient.GetFromJsonAsync<List<GroupDto>>("api/group/joinable") ?? new();
+    }
+
+    private async Task Join(int groupId)
+    {
+        await authService.SetAuthHeaderAsync();
+        await httpClient.PostAsJsonAsync("api/group/join", new JoinGroupRequestDto { GroupId = groupId });
+        groups = await httpClient.GetFromJsonAsync<List<GroupDto>>("api/group/joinable") ?? new();
     }
 }
