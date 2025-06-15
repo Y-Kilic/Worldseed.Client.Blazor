@@ -12,6 +12,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddBlazorStrap();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<Worldseed.Client.Blazor.Services.AuthService>();
 
 
 await builder.Build().RunAsync();

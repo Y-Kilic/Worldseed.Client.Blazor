@@ -2,7 +2,7 @@
 @using Worldseed.Client.Blazor.DTOs.Group
 @using Worldseed.Client.Blazor.DTOs
 @inject HttpClient httpClient
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject AuthService authService
 @using System.Net.Http.Headers
 
 <h3>Change Member Rank</h3>
@@ -20,9 +20,7 @@
 
     private async Task ChangeRank()
     {
-        var token = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
-        httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", token?.Token);
+        await authService.SetAuthHeaderAsync();
         await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/rank", dto);
         dto = new ChangeMemberRankDto();
     }
