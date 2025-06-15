@@ -1,21 +1,52 @@
 @page "/group/create"
 @using Worldseed.Client.Blazor.DTOs.Group
-@using Worldseed.Client.Blazor.DTOs
 @inject HttpClient httpClient
 @inject AuthService authService
-@using System.Net.Http.Headers
+@inject NavigationManager nav
+@inject IBlazorStrap blazorStrap
 
 <h3>Create Group</h3>
-<input @bind="group.Name" placeholder="Name" />
-<button @onclick="Create">Create</button>
+<BSForm Model="group" OnValidSubmit="Create">
+    <BSInput InputType="InputType.Text" placeholder="Name" @bind-Value="group.Name" MarginBottom="Margins.Medium" />
+    <p><BSButton IsSubmit="true" Color="BSColor.Primary">Create</BSButton></p>
+</BSForm>
+
+<BSModal IsCentered="true" DataId="modalCreateFailed">
+    <Header>Error</Header>
+    <Content>Group creation failed :(</Content>
+    <Footer Context="modal">
+        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="modal.HideAsync">Close</BSButton>
+    </Footer>
+</BSModal>
+
+<BSModal IsCentered="true" DataId="modalCreateSucceeded">
+    <Header>Success</Header>
+    <Content>Group created!</Content>
+    <Footer Context="modal">
+        <BSButton MarginStart="Margins.Auto" Color="BSColor.Secondary" @onclick="RedirectToMyGroups">Go to My Groups</BSButton>
+    </Footer>
+</BSModal>
 
 @code {
     private CreateGroupRequestDto group = new();
 
+    private async Task RedirectToMyGroups()
+    {
+        nav.NavigateTo("/group/my");
+    }
+
     private async Task Create()
     {
         await authService.SetAuthHeaderAsync();
-        await httpClient.PostAsJsonAsync("api/group/createGroup", group);
-        group = new CreateGroupRequestDto();
+        using var response = await httpClient.PostAsJsonAsync("api/group/createGroup", group);
+        if (response.IsSuccessStatusCode)
+        {
+            group = new CreateGroupRequestDto();
+            blazorStrap.ForwardClick("modalCreateSucceeded");
+        }
+        else
+        {
+            blazorStrap.ForwardClick("modalCreateFailed");
+        }
     }
 }
