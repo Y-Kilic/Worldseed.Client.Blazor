@@ -16,7 +16,7 @@
     private async Task Update()
     {
         await authService.SetAuthHeaderAsync();
-        await httpClient.PostAsJsonAsync("https://api.worldseed.io/api/group/updateName", dto);
+        await httpClient.PostAsJsonAsync("api/group/updateName", dto);
         dto = new UpdateGroupNameDto();
     }
 }

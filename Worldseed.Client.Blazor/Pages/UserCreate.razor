@@ -67,7 +67,7 @@
     private async Task SubmitCreateUser()
     {
         await authService.SetAuthHeaderAsync();
-        using (var response = await httpClient.PostAsJsonAsync<CreateUserDTO>("https://api.worldseed.io/api/User/createUser", createUserDTO, System.Threading.CancellationToken.None))
+        using (var response = await httpClient.PostAsJsonAsync<CreateUserDTO>("api/User/createUser", createUserDTO, System.Threading.CancellationToken.None))
         {
             if (response.IsSuccessStatusCode)
             {

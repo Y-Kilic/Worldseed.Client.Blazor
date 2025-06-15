@@ -30,7 +30,7 @@ namespace Worldseed.Client.Blazor.Services
             if (tokenInfo.ValidTo <= DateTime.UtcNow.AddMinutes(1))
             {
                 using var response = await _httpClient.PostAsJsonAsync(
-                    "https://api.worldseed.io/api/Auth/refresh-token",
+                    "api/Auth/refresh-token",
                     tokenInfo.RefreshTokenDTO);
                 if (response.IsSuccessStatusCode)
                 {

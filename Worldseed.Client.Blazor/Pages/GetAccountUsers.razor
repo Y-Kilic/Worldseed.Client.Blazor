@@ -46,7 +46,7 @@
 
         try
         {
-            var response = await httpClient.GetFromJsonAsync<List<GetAccountUsersResponseDTO>>("https://api.worldseed.io/api/User/getAccountUsers");
+            var response = await httpClient.GetFromJsonAsync<List<GetAccountUsersResponseDTO>>("api/User/getAccountUsers");
 
             if (response != null && response.Count > 0)
             {
