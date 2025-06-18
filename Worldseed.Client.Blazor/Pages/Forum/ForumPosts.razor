@@ -1,6 +1,7 @@
 @page "/forum/thread/{threadId:int}/posts"
 @using Worldseed.Client.Blazor.DTOs.Forum
 @inject HttpClient httpClient
+@inject AuthService authService
 @code {
     [Parameter]
     public int threadId { get; set; }
@@ -13,6 +14,7 @@
     }
     private async Task CreatePost()
     {
+        await authService.SetAuthHeaderAsync();
         await httpClient.PostAsJsonAsync("api/forum/createPost", newPost);
         newPost = new CreateForumPostDTO { ForumCategoryThreadId = threadId };
         posts = await httpClient.GetFromJsonAsync<List<ForumCategoryThreadPostDTO>>($"api/forum/thread/{threadId}/posts") ?? new();
@@ -27,5 +29,4 @@
 </ul>
 <h4>Create Post</h4>
 <textarea @bind="newPost.Content" placeholder="Content"></textarea>
-<input type="number" @bind="newPost.OwnerId" placeholder="Owner ID" />
 <button @onclick="CreatePost">Create</button>
