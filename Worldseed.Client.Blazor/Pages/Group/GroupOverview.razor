@@ -1,0 +1,52 @@
+@page "/group/overview"
+@using Worldseed.Client.Blazor.DTOs.Group
+@using Worldseed.Client.Blazor.DTOs.Forum
+@inject HttpClient httpClient
+@inject AuthService authService
+
+<h3>My Groups Overview</h3>
+
+@if (groups.Count == 0)
+{
+    <p>You are not part of any group.</p>
+}
+else
+{
+    @foreach (var g in groups)
+    {
+        <h4>@g.Name</h4>
+        <p><strong>Members</strong></p>
+        <ul>
+        @foreach (var m in groupMembers[g.Id])
+        {
+            <li>@m.UserName (@m.Rank)</li>
+        }
+        </ul>
+        <p><strong>Forums</strong></p>
+        <ul>
+        @foreach (var f in groupForums[g.Id])
+        {
+            <li><a href="/forum/@f.Id/categories">@f.Name</a></li>
+        }
+        </ul>
+    }
+}
+
+@code {
+    private List<GroupDto> groups = new();
+    private Dictionary<int, List<GroupMemberDto>> groupMembers = new();
+    private Dictionary<int, List<ForumDTO>> groupForums = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await authService.SetAuthHeaderAsync();
+        groups = await httpClient.GetFromJsonAsync<List<GroupDto>>("api/group/mine") ?? new();
+        foreach (var g in groups)
+        {
+            var members = await httpClient.GetFromJsonAsync<List<GroupMemberDto>>($"api/group/{g.Id}/members") ?? new();
+            groupMembers[g.Id] = members;
+            var forums = await httpClient.GetFromJsonAsync<List<ForumDTO>>($"api/forum/group/{g.Id}") ?? new();
+            groupForums[g.Id] = forums;
+        }
+    }
+}
