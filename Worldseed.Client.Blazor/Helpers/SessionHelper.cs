@@ -6,7 +6,7 @@ namespace Worldseed.Client.Blazor.Helpers
     {
         public static bool IsAuthenticated(LoginTokenResponseDTO tokenInformation)
         {
-            return tokenInformation != null;
+            return tokenInformation != null && tokenInformation.ValidTo > DateTime.UtcNow;
         }
     }
 }
