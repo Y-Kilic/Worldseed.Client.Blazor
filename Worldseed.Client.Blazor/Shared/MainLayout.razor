@@ -36,7 +36,7 @@
     
     protected override async Task OnParametersSetAsync()
     {
-        await OnInitializedAsync();
+        currentToken = await localStorage.GetItemAsync<LoginTokenResponseDTO>("JWT");
     }
     private LoginTokenResponseDTO currentToken = null;
 }
